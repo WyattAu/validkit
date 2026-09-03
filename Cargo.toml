@@ -31,9 +31,8 @@ serde = ["dep:serde", "dep:serde_json"]
 chrono = ["dep:chrono"]
 url = ["dep:url"]
 regex = ["dep:regex"]
-idna = ["dep:idna"]
 openapi = []
-full = ["serde", "chrono", "url", "regex", "idna"]
+full = ["serde", "chrono", "url", "regex"]
 
 [[bench]]
 name = "valid_bench"
