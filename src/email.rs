@@ -99,9 +99,7 @@ fn validate_email(input: &str) -> Result<EmailAddr, ValidError> {
 
     // Local part checks (RFC 5321: max 64 octets).
     if local.is_empty() {
-        return Err(ValidError::InvalidEmail(
-            "local part is empty".to_string(),
-        ));
+        return Err(ValidError::InvalidEmail("local part is empty".to_string()));
     }
     if local.len() > 64 {
         return Err(ValidError::InvalidEmail(
@@ -129,7 +127,10 @@ fn validate_email(input: &str) -> Result<EmailAddr, ValidError> {
         // Disallow chars that would break quoting without full parser: <>()[]\\,;:
         // We do a simple check: only allow ASCII printable minus problematic ones, or allow full?
         // Keep permissive but block clearly invalid.
-        if matches!(ch, '<' | '>' | '(' | ')' | '[' | ']' | '\\' | ',' | ';' | ':' | '"') {
+        if matches!(
+            ch,
+            '<' | '>' | '(' | ')' | '[' | ']' | '\\' | ',' | ';' | ':' | '"'
+        ) {
             return Err(ValidError::InvalidEmail(alloc::format!(
                 "local part contains invalid character '{}'",
                 ch
@@ -139,9 +140,7 @@ fn validate_email(input: &str) -> Result<EmailAddr, ValidError> {
 
     // Domain checks.
     if domain.is_empty() {
-        return Err(ValidError::InvalidEmail(
-            "domain is empty".to_string(),
-        ));
+        return Err(ValidError::InvalidEmail("domain is empty".to_string()));
     }
     if domain.len() > 253 {
         return Err(ValidError::InvalidEmail(
@@ -153,7 +152,11 @@ fn validate_email(input: &str) -> Result<EmailAddr, ValidError> {
             "domain must not contain consecutive dots".to_string(),
         ));
     }
-    if domain.starts_with('.') || domain.ends_with('.') || domain.starts_with('-') || domain.ends_with('-') {
+    if domain.starts_with('.')
+        || domain.ends_with('.')
+        || domain.starts_with('-')
+        || domain.ends_with('-')
+    {
         return Err(ValidError::InvalidEmail(
             "domain must not start or end with '.' or '-'".to_string(),
         ));

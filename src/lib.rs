@@ -52,23 +52,23 @@ pub mod tenant;
 pub mod url;
 
 // Re-exports
-pub use bucket::BucketName;
 pub use bucket::is_valid_bucket_name;
-pub use cron::CronExpr;
+pub use bucket::BucketName;
 pub use cron::is_valid_cron;
-pub use email::EmailAddr;
+pub use cron::CronExpr;
 pub use email::is_valid_email;
+pub use email::EmailAddr;
 pub use email::Validate;
 pub use error::ValidError;
-pub use flag_name::FlagName;
 pub use flag_name::is_valid_flag_name;
-pub use locale::LocaleTag;
+pub use flag_name::FlagName;
 pub use locale::is_valid_locale;
-pub use object_key::ObjectKey;
+pub use locale::LocaleTag;
 pub use object_key::is_valid_object_key;
+pub use object_key::ObjectKey;
 pub use phone::PhoneE164;
-pub use tenant::TenantIdSlug;
 pub use tenant::is_valid_tenant_id;
+pub use tenant::TenantIdSlug;
 pub use url::HttpsUrl;
 
 #[cfg(test)]

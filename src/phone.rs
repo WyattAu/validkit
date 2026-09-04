@@ -102,11 +102,7 @@ fn validate_phone(input: &str) -> Result<PhoneE164, ValidError> {
             // Without std, compile each time (no OnceLock).
             let re = match regex::Regex::new(r"^\+[1-9]\d{1,14}$") {
                 Ok(r) => r,
-                Err(_) => {
-                    return Err(ValidError::InvalidPhone(
-                        "internal regex error".to_string(),
-                    ))
-                }
+                Err(_) => return Err(ValidError::InvalidPhone("internal regex error".to_string())),
             };
             if !re.is_match(input) {
                 return Err(ValidError::InvalidPhone(

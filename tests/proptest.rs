@@ -32,13 +32,17 @@ fn arb_bucket() -> impl Strategy<Value = String> {
 fn arb_object_key() -> impl Strategy<Value = String> {
     // Avoid .. segment and leading /
     "[a-zA-Z0-9_\\-\\.]+(/[a-zA-Z0-9_\\-\\.]+)*".prop_filter("valid object key", |s: &String| {
-        s.len() <= 1024 && !s.is_empty() && !s.starts_with('/') && !s.split('/').any(|seg| seg == "..")
+        s.len() <= 1024
+            && !s.is_empty()
+            && !s.starts_with('/')
+            && !s.split('/').any(|seg| seg == "..")
     })
 }
 
 fn arb_email() -> impl Strategy<Value = String> {
     // Simple: local + @ + domain
-    ("[a-z]{1,8}", "[a-z]{1,8}\\.[a-z]{2,3}").prop_map(|(local, domain)| format!("{}@{}", local, domain))
+    ("[a-z]{1,8}", "[a-z]{1,8}\\.[a-z]{2,3}")
+        .prop_map(|(local, domain)| format!("{}@{}", local, domain))
 }
 
 fn arb_cron() -> impl Strategy<Value = String> {
@@ -50,9 +54,14 @@ fn arb_cron() -> impl Strategy<Value = String> {
         r"\*/[0-9]{1,2}",
         "[0-9]{1,2}-[0-9]{1,2}",
     ];
-    (field.clone(), field.clone(), field.clone(), field.clone(), field).prop_map(|(a, b, c, d, e)| {
-        format!("{} {} {} {} {}", a, b, c, d, e)
-    })
+    (
+        field.clone(),
+        field.clone(),
+        field.clone(),
+        field.clone(),
+        field,
+    )
+        .prop_map(|(a, b, c, d, e)| format!("{} {} {} {} {}", a, b, c, d, e))
 }
 
 fn arb_phone() -> impl Strategy<Value = String> {

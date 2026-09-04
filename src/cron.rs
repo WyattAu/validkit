@@ -91,18 +91,14 @@ fn validate_cron(input: &str) -> Result<CronExpr, ValidError> {
                 let init = match regex::Regex::new(r"^[\d\*,\/\-]+$") {
                     Ok(r) => r,
                     Err(_) => {
-                        return Err(ValidError::InvalidCron(
-                            "internal regex error".to_string(),
-                        ))
+                        return Err(ValidError::InvalidCron("internal regex error".to_string()))
                     }
                 };
                 let _ = FIELD_RE.set(init);
                 match FIELD_RE.get() {
                     Some(r) => r,
                     None => {
-                        return Err(ValidError::InvalidCron(
-                            "internal regex error".to_string(),
-                        ))
+                        return Err(ValidError::InvalidCron("internal regex error".to_string()))
                     }
                 }
             }
@@ -148,9 +144,7 @@ fn validate_cron(input: &str) -> Result<CronExpr, ValidError> {
     {
         for field in &fields {
             if field.is_empty() {
-                return Err(ValidError::InvalidCron(
-                    "cron field is empty".to_string(),
-                ));
+                return Err(ValidError::InvalidCron("cron field is empty".to_string()));
             }
             if *field == "*" {
                 continue;
@@ -167,7 +161,8 @@ fn validate_cron(input: &str) -> Result<CronExpr, ValidError> {
                 }
                 return Err(ValidError::InvalidCron(alloc::format!(
                     "invalid character '{}' in cron field '{}'",
-                    ch, field
+                    ch,
+                    field
                 )));
             }
             if !has_digit && !field.contains('*') {

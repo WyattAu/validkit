@@ -97,7 +97,11 @@ fn validate_bucket(input: &str) -> Result<BucketName, ValidError> {
             "bucket name contains CR or LF".to_string(),
         ));
     }
-    if input.starts_with('-') || input.ends_with('-') || input.starts_with('.') || input.ends_with('.') {
+    if input.starts_with('-')
+        || input.ends_with('-')
+        || input.starts_with('.')
+        || input.ends_with('.')
+    {
         return Err(ValidError::InvalidBucketName(
             "bucket name must not start or end with '-' or '.'".to_string(),
         ));

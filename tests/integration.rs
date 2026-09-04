@@ -1,8 +1,8 @@
+use std::str::FromStr;
 use validkit::{
     BucketName, CronExpr, EmailAddr, FlagName, HttpsUrl, LocaleTag, ObjectKey, PhoneE164,
     TenantIdSlug,
 };
-use std::str::FromStr;
 
 // Helpers
 fn roundtrip<T>(s: &str, parse: impl Fn(&str) -> Result<T, validkit::ValidError>) -> bool
@@ -104,7 +104,11 @@ fn https_url_valid() {
     for case in valid {
         let parsed = HttpsUrl::parse(case);
         assert!(parsed.is_ok(), "should be valid: {} {:?}", case, parsed);
-        assert!(roundtrip(case, HttpsUrl::parse), "roundtrip failed: {}", case);
+        assert!(
+            roundtrip(case, HttpsUrl::parse),
+            "roundtrip failed: {}",
+            case
+        );
     }
 }
 
@@ -144,7 +148,11 @@ fn phone_valid() {
     let valid = ["+12", "+14155552671", "+442071838750", "+123456789012345"];
     for case in valid {
         assert!(PhoneE164::parse(case).is_ok(), "should be valid: {}", case);
-        assert!(roundtrip(case, PhoneE164::parse), "roundtrip failed: {}", case);
+        assert!(
+            roundtrip(case, PhoneE164::parse),
+            "roundtrip failed: {}",
+            case
+        );
     }
 }
 
@@ -183,7 +191,11 @@ fn cron_valid() {
     ];
     for case in valid {
         assert!(CronExpr::parse(case).is_ok(), "should be valid: {}", case);
-        assert!(roundtrip(case, CronExpr::parse), "roundtrip failed: {}", case);
+        assert!(
+            roundtrip(case, CronExpr::parse),
+            "roundtrip failed: {}",
+            case
+        );
     }
 }
 
@@ -246,7 +258,15 @@ fn tenant_invalid() {
 
 #[test]
 fn locale_valid() {
-    let valid = ["en", "en-US", "es-419", "zh-Hans-CN", "fr-CA", "abc", "ab-12"];
+    let valid = [
+        "en",
+        "en-US",
+        "es-419",
+        "zh-Hans-CN",
+        "fr-CA",
+        "abc",
+        "ab-12",
+    ];
     for case in valid {
         assert!(LocaleTag::parse(case).is_ok(), "should be valid: {}", case);
         assert!(
@@ -277,7 +297,11 @@ fn flag_valid() {
     let valid = ["a", "flag_a", "ai_analyzers", "flag2", "my_flag_123"];
     for case in valid {
         assert!(FlagName::parse(case).is_ok(), "should be valid: {}", case);
-        assert!(roundtrip(case, FlagName::parse), "roundtrip failed: {}", case);
+        assert!(
+            roundtrip(case, FlagName::parse),
+            "roundtrip failed: {}",
+            case
+        );
     }
 }
 
@@ -334,11 +358,7 @@ fn object_key_valid() {
         "a/b/c/d",
     ];
     for case in valid {
-        assert!(
-            ObjectKey::parse(case).is_ok(),
-            "should be valid: {}",
-            case
-        );
+        assert!(ObjectKey::parse(case).is_ok(), "should be valid: {}", case);
         assert!(
             roundtrip(case, ObjectKey::parse),
             "roundtrip failed: {}",

@@ -107,11 +107,7 @@ fn validate_locale(input: &str) -> Result<LocaleTag, ValidError> {
         let mut parts = input.split('-');
         let first = match parts.next() {
             Some(p) => p,
-            None => {
-                return Err(ValidError::InvalidLocale(
-                    "locale is empty".to_string(),
-                ))
-            }
+            None => return Err(ValidError::InvalidLocale("locale is empty".to_string())),
         };
         if first.len() < 2 || first.len() > 3 {
             return Err(ValidError::InvalidLocale(alloc::format!(

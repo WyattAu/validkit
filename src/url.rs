@@ -81,15 +81,12 @@ fn validate_https_url(input: &str) -> Result<HttpsUrl, ValidError> {
         return Err(ValidError::InvalidUrl("url is empty".to_string()));
     }
     if input.contains('\r') || input.contains('\n') {
-        return Err(ValidError::InvalidUrl(
-            "url contains CR or LF".to_string(),
-        ));
+        return Err(ValidError::InvalidUrl("url contains CR or LF".to_string()));
     }
 
     #[cfg(feature = "url")]
     {
-        let parsed = url::Url::parse(input)
-            .map_err(|e| ValidError::InvalidUrl(e.to_string()))?;
+        let parsed = url::Url::parse(input).map_err(|e| ValidError::InvalidUrl(e.to_string()))?;
 
         if parsed.scheme() != "https" {
             return Err(ValidError::InvalidUrl(
@@ -97,9 +94,7 @@ fn validate_https_url(input: &str) -> Result<HttpsUrl, ValidError> {
             ));
         }
         if parsed.host_str().is_none() {
-            return Err(ValidError::InvalidUrl(
-                "url host is required".to_string(),
-            ));
+            return Err(ValidError::InvalidUrl("url host is required".to_string()));
         }
         if !parsed.username().is_empty() || parsed.password().is_some() {
             return Err(ValidError::InvalidUrl(
@@ -120,9 +115,7 @@ fn validate_https_url(input: &str) -> Result<HttpsUrl, ValidError> {
         }
         let after_scheme = &input["https://".len()..];
         if after_scheme.is_empty() {
-            return Err(ValidError::InvalidUrl(
-                "url host is required".to_string(),
-            ));
+            return Err(ValidError::InvalidUrl("url host is required".to_string()));
         }
         // No credentials: disallow '@' before first '/'.
         let host_part = match after_scheme.split('/').next() {
@@ -135,14 +128,10 @@ fn validate_https_url(input: &str) -> Result<HttpsUrl, ValidError> {
             ));
         }
         if host_part.is_empty() {
-            return Err(ValidError::InvalidUrl(
-                "url host is required".to_string(),
-            ));
+            return Err(ValidError::InvalidUrl("url host is required".to_string()));
         }
         if input.contains(' ') {
-            return Err(ValidError::InvalidUrl(
-                "url contains space".to_string(),
-            ));
+            return Err(ValidError::InvalidUrl("url contains space".to_string()));
         }
         Ok(HttpsUrl(input.to_string()))
     }
