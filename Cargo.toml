@@ -38,3 +38,9 @@ full = ["serde", "chrono", "url", "regex"]
 [[bench]]
 name = "valid_bench"
 harness = false
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "warn"
+indexing_slicing = "deny"
+panic = "deny"

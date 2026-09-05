@@ -71,6 +71,15 @@ pub use tenant::is_valid_tenant_id;
 pub use tenant::TenantIdSlug;
 pub use url::HttpsUrl;
 
+// Tests exercise failure paths and invariants directly; unwrap/expect,
+// slicing, and panicking asserts are acceptable here — violations
+// surface as test failures, not production panics.
+#[allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::indexing_slicing,
+    clippy::panic
+)]
 #[cfg(test)]
 mod smoke {
     use super::*;
