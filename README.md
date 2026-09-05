@@ -63,3 +63,7 @@ validkit = { version = "0.1", default-features = false }
 ## License
 
 MIT OR Apache-2.0
+
+## Security
+
+Threat model: [THREAT-MODEL.md](THREAT-MODEL.md).
