@@ -20,7 +20,7 @@ jobs:
       all-features: true
       loom: false
       wasm: false
-      miri: false
+      miri: true
 
   # Repo-specific: no_std/wasm32 target gate (web validation types must
   # compile for browser/edge deployments).
