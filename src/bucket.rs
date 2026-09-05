@@ -23,7 +23,7 @@ use crate::error::ValidError;
 /// - must not contain `..` traversal is irrelevant for bucket but keep.
 /// - must not be empty.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct BucketName(String);
 
@@ -136,6 +136,17 @@ fn validate_bucket(input: &str) -> Result<BucketName, ValidError> {
 #[must_use]
 pub fn is_valid_bucket_name(s: &str) -> bool {
     validate_bucket(s).is_ok()
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for BucketName {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Deref for BucketName {

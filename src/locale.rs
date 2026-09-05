@@ -15,7 +15,7 @@ use crate::error::ValidError;
 /// - max 35 characters
 /// - regex `^[a-z]{2,3}(-[A-Za-z0-9]+)*$`
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct LocaleTag(String);
 
@@ -148,6 +148,17 @@ fn validate_locale(input: &str) -> Result<LocaleTag, ValidError> {
 #[must_use]
 pub fn is_valid_locale(s: &str) -> bool {
     validate_locale(s).is_ok()
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for LocaleTag {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Deref for LocaleTag {

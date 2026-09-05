@@ -35,7 +35,8 @@
 //! ```
 //!
 //! All types implement `TryFrom<String>`, `FromStr`, `Display`, `Deref<Target=str>`,
-//! `AsRef<str>`, and optional `serde` transparent (de)serialization.
+//! and optional `serde` support (transparent serialization; deserialization
+//! runs full validation, so invalid values cannot enter through JSON).
 //!
 
 extern crate alloc;

@@ -25,7 +25,7 @@ pub trait Validate {
 /// Display normalises the domain part to lowercase and, when the `idna`
 /// feature is enabled, to ASCII (punycode) form.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct EmailAddr(String);
 
@@ -248,6 +248,17 @@ impl Validate for EmailAddr {
     fn validate(&self) -> Result<(), ValidError> {
         // Re-validate the inner string (defensive).
         validate_email(&self.0).map(|_| ())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for EmailAddr {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
     }
 }
 

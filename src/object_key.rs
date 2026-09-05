@@ -19,7 +19,7 @@ use crate::error::ValidError;
 /// - must be valid UTF-8 (enforced by `&str` input)
 /// - must not contain `\r` or `\n`
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct ObjectKey(String);
 
@@ -104,6 +104,17 @@ fn validate_object_key(input: &str) -> Result<ObjectKey, ValidError> {
 #[must_use]
 pub fn is_valid_object_key(s: &str) -> bool {
     validate_object_key(s).is_ok()
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for ObjectKey {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Deref for ObjectKey {

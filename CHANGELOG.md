@@ -5,6 +5,22 @@ Changelog](https://keepachangelog.com/) — versions follow [semver](https://sem
 
 ## [Unreleased]
 
+### Fixed
+
+- `serde::Deserialize` no longer bypasses validation. The newtypes derived
+  `serde(transparent)` for both directions, so deserializing e.g.
+  `"no-at.example.com"` into `EmailAddr` silently produced an invalid value.
+  Serialization remains transparent; deserialization now runs the same
+  validation as `parse` and rejects invalid input.
+
+### Added
+
+- `tests/fallback_paths.rs`: exercises the hand-rolled validators behind
+  `#[cfg(not(feature = "regex"))]`, `#[cfg(not(feature = "url"))]`, and
+  `#[cfg(not(feature = "idna"))]`, which never run under `--all-features`.
+  CI now runs them via the `fallback-validators` job
+  (`cargo test --no-default-features --features serde,std`).
+
 ## [0.1.0] - 2026-09-03
 
 ### Added

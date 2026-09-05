@@ -18,7 +18,7 @@ use crate::error::ValidError;
 /// - must not contain `..`
 /// - must not end with `.lock` suffix
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct TenantIdSlug(String);
 
@@ -99,6 +99,17 @@ fn validate_tenant(input: &str) -> Result<TenantIdSlug, ValidError> {
 #[must_use]
 pub fn is_valid_tenant_id(s: &str) -> bool {
     validate_tenant(s).is_ok()
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for TenantIdSlug {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Deref for TenantIdSlug {

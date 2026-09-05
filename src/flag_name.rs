@@ -15,7 +15,7 @@ use crate::error::ValidError;
 /// Snake-case, starting with a lowercase letter, containing only lowercase
 /// alphanumeric and underscore (e.g. `flag_ai_analyzers` lowercased form).
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct FlagName(String);
 
@@ -106,6 +106,17 @@ fn validate_flag(input: &str) -> Result<FlagName, ValidError> {
 #[must_use]
 pub fn is_valid_flag_name(s: &str) -> bool {
     validate_flag(s).is_ok()
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for FlagName {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Deref for FlagName {

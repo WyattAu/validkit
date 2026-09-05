@@ -18,7 +18,7 @@ use crate::error::ValidError;
 /// parser; it catches the common class of hand-rolled `is_valid_cron` errors
 /// without pulling in a heavy parser.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct CronExpr(String);
 
@@ -197,6 +197,17 @@ fn validate_cron(input: &str) -> Result<CronExpr, ValidError> {
 #[must_use]
 pub fn is_valid_cron(s: &str) -> bool {
     validate_cron(s).is_ok()
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for CronExpr {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Deref for CronExpr {

@@ -16,7 +16,7 @@ use crate::error::ValidError;
 /// - host is present
 /// - no credentials (username/password) are present
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct HttpsUrl(
     #[cfg(feature = "url")] pub(crate) url::Url,
@@ -134,6 +134,17 @@ fn validate_https_url(input: &str) -> Result<HttpsUrl, ValidError> {
             return Err(ValidError::InvalidUrl("url contains space".to_string()));
         }
         Ok(HttpsUrl(input.to_string()))
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for HttpsUrl {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
     }
 }
 

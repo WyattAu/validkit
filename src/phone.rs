@@ -14,7 +14,7 @@ use crate::error::ValidError;
 
 /// A validated E.164 phone number, e.g. `+14155552671`.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct PhoneE164(String);
 
@@ -143,6 +143,17 @@ fn validate_phone(input: &str) -> Result<PhoneE164, ValidError> {
             }
         }
         return Ok(PhoneE164(input.to_string()));
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for PhoneE164 {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let s = <String as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(s).map_err(serde::de::Error::custom)
     }
 }
 

@@ -38,3 +38,21 @@ jobs:
           key: wasm32
       - name: Check compilation (wasm32)
         run: cargo check --target wasm32-unknown-unknown --no-default-features
+
+  # Repo-specific: the hand-rolled validators behind
+  # `#[cfg(not(feature = "regex"))]`, `not(feature = "url"))]`, and
+  # `not(feature = "idna"))]` never execute under --all-features, so the
+  # coverage job cannot see them. This job runs the gated fallback test
+  # target (tests/fallback_paths.rs) against the reduced feature set.
+  fallback-validators:
+    name: Test (fallback validators, no-default-features + serde,std)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: fallback-validators
+      - name: test (fallback engines, no regex/url/idna)
+        run: cargo test --locked --no-default-features --features serde,std
