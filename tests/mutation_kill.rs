@@ -102,6 +102,22 @@ fn bucket_zero_padded_long_part_is_not_ip_like() {
     assert!(BucketName::parse("1.2.3.0000").is_ok());
 }
 
+// --- bucket.rs length boundary (deterministic kill: the proptest only
+// generates 63-char names with low probability, making this kill flaky) ---
+
+#[test]
+fn bucket_length_boundary_63_ok_64_err() {
+    let ok63 = "a".repeat(63);
+    assert_eq!(ok63.len(), 63);
+    assert!(BucketName::parse(&ok63).is_ok());
+
+    let err = BucketName::parse(&format!("{ok63}b")).unwrap_err();
+    assert!(
+        matches!(&err, validkit::ValidError::InvalidBucketName(m) if m.contains("3-63")),
+        "{err}"
+    );
+}
+
 // --- cron.rs leading-punctuation guard ---
 
 #[test]
