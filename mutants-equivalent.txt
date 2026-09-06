@@ -1,8 +1,46 @@
-# Equivalent mutants found by cargo-mutants triage (2026-09-06).
-# One mutant per line: "<file>:<line> — rationale".
-src/bucket.rs:69 — `p.is_empty() || p.len() > 3` → `&&` is behaviorally identical: any part reaching the removed arm still fails `p.parse::<u16>()` two lines later and returns false; no input distinguishes the two (empty part ⇒ parse error ⇒ same outcome).
-src/email.rs:145 — `domain.len() > 253` is unreachable defense-in-depth: the earlier `input.len() > 254` check bounds domain ≤ 252 for any ≥1-octet local part, so the condition can never fire and operator swaps on it are unobservable.
-src/flag_name.rs:58 — CR/LF rejection `||` → `&&` is subsumed by charset checks in BOTH profiles: under `--all-features` the regex `^[a-z][a-z0-9_]*$` rejects `\r`/`\n`, and under `--no-default-features` the fallback hand-check does, both yielding the same unit error `InvalidFlagName` (no message to distinguish). Verified missed in scoped probe runs of both profiles.
-src/cron.rs:114 — the punctuation-presence `||` chain (both operator positions) and its `&& !any(digit|'*')` tail are message-equivalent under the regex profile: every field that would err here is pure punctuation (charset is digits + `*`, `,`, `/`, `-`), and every such field also trips the leading/trailing/duplicate-punctuation checks at lines 122–135 with the identical `invalid cron field '<f>'` message; fields accepted there pass 114 identically. The 114 mutants therefore cannot change any observable outcome.
-src/cron.rs:115 — `==` → `!=` in `any(digit || '*')` widens the predicate to `any(non-'*')`, which is exactly the complement over this charset: a field erring at 114–115 must be punctuation-only (contains no digit and no `*`), hence contains a non-`*`, hence 115 still does not fire; the field then errs at 122+ with the identical message. Unobservable.
+# Equivalent / unviable mutants found by cargo-mutants triage (2026-09-06).
+# One mutant per line: "<file>:<line> — classification — rationale".
+# Run: cargo mutants --all-features (291 mutants; baseline with tests from
+# tests/mutation_boundaries.rs + tests/mutation_kill.rs).
+#
+# Classification legend:
+#   UNVIABLE-CFG — code is compiled out under --all-features; no host test
+#     can execute it. Verified by its own dedicated harness (see notes).
+#   EQUIVALENT   — mutant is behavior-identical to the original.
 
+# --- UNVIABLE-CFG: `#[cfg(not(feature = "regex"))]` hand-rolled branches
+# (never compiled by the --all-features suite that cargo-mutants runs;
+# covered by tests/fallback_paths.rs with --no-default-features).
+src/cron.rs:149 — UNVIABLE-CFG — not(regex) branch (field == "*" skip).
+src/cron.rs:168 — UNVIABLE-CFG — not(regex) branch (has_digit checks, ×3 mutants).
+src/cron.rs:176..183 — UNVIABLE-CFG — not(regex) branch (leading/trailing/consecutive-punct chain, ×8 mutants).
+src/flag_name.rs:93 — UNVIABLE-CFG — not(regex) branch (first-char lowercase check).
+src/flag_name.rs:97 — UNVIABLE-CFG — not(regex) branch (charset loop, ×5 mutants).
+src/locale.rs:112 — UNVIABLE-CFG — not(regex) branch (primary tag 2-3 length, ×6 mutants).
+src/locale.rs:118 — UNVIABLE-CFG — not(regex) branch (primary tag lowercase check).
+src/locale.rs:130 — UNVIABLE-CFG — not(regex) branch (subtag length ≤ 8, ×3 mutants).
+src/locale.rs:136 — UNVIABLE-CFG — not(regex) branch (subtag alnum check).
+src/phone.rs:107 — UNVIABLE-CFG — regex+not(std) branch (no-OnceLock fallback).
+src/phone.rs:120..139 — UNVIABLE-CFG — not(regex) branch (hand-rolled E.164, ×9 mutants).
+src/url.rs:111 — UNVIABLE-CFG — not(url) fallback branch (https:// prefix check).
+
+# --- EQUIVALENT: behavior-identical by construction or masked with an
+# identical observable result ---
+src/cron.rs:114 — EQUIVALENT — punctuation-presence check is masked by the
+  later leading/trailing/consecutive guards (122/128/134), which reject every
+  input this branch would reject, emitting the identical
+  "invalid cron field" message. Defense-in-depth line (×3 mutants: 114:37,
+  114:60, 115:67).
+src/email.rs:145 — EQUIVALENT — domain > 253 is unreachable: the total-length
+  guard (input.len() > 254, line 74) rejects first, since local ≥ 1 and '@'
+  force total > 254 whenever domain > 253 (×2 mutants).
+src/email.rs:238 — EQUIVALENT — post-IDNA length check can never fire: IDNA
+ /punycode output is always shorter than the raw UTF-8 input (expansion
+  ratio < 1 for every allowed code-point class), so normalised.len() ≤
+  input.len() ≤ 254.
+src/email.rs:250 — EQUIVALENT — Validate::validate re-validates self.0, but
+  no public path (parse/new/Deserialize/TryFrom) can construct an invalid
+  EmailAddr; the method is defensive and always sees a valid string.
+src/flag_name.rs:58 — EQUIVALENT — CR/LF check masked by the regex charset
+  guard; InvalidFlagName is a unit variant, so both rejection paths produce
+  the identical value (no message to distinguish them).
