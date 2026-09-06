@@ -1,0 +1,5 @@
+# Equivalent mutants found by cargo-mutants triage (2026-09-06).
+# One mutant per line: "<file>:<line> — rationale".
+src/bucket.rs:69 — `p.is_empty() || p.len() > 3` → `&&` is behaviorally identical: any part reaching the removed arm still fails `p.parse::<u16>()` two lines later and returns false; no input distinguishes the two (empty part ⇒ parse error ⇒ same outcome).
+src/email.rs:145 — `domain.len() > 253` is unreachable defense-in-depth: the earlier `input.len() > 254` check bounds domain ≤ 252 for any ≥1-octet local part, so the condition can never fire and operator swaps on it are unobservable.
+src/flag_name.rs:58 — CR/LF rejection `||` → `&&` is subsumed by charset checks in BOTH profiles: under `--all-features` the regex `^[a-z][a-z0-9_]*$` rejects `\r`/`\n`, and under `--no-default-features` the fallback hand-check does, both yielding the same unit error `InvalidFlagName` (no message to distinguish). Verified missed in scoped probe runs of both profiles.
