@@ -12,7 +12,7 @@
 
 use validkit::{
     is_valid_bucket_name, is_valid_cron, is_valid_object_key, is_valid_tenant_id, BucketName,
-    EmailAddr, HttpsUrl, LocaleTag, PhoneE164, TenantIdSlug, ValidError,
+    CronExpr, EmailAddr, HttpsUrl, LocaleTag, PhoneE164, TenantIdSlug, ValidError,
 };
 
 // --- BucketName: IP-like detection (is_ip_like) ---
@@ -181,4 +181,67 @@ fn is_valid_cron_matches_parse() {
     assert!(is_valid_cron("*/5 * * * *"));
     assert!(!is_valid_cron("nonsense"));
     assert!(!is_valid_cron("* * * *"));
+}
+
+#[test]
+fn cron_rejects_field_starting_with_slash() {
+    // The regex charset allows '/', so only the punctuation-position checks
+    // reject a field that starts with it.
+    let err = CronExpr::parse("/1 * * * *").unwrap_err();
+    assert!(
+        matches!(&err, ValidError::InvalidCron(m) if m.contains("invalid cron field")),
+        "{err}"
+    );
+}
+
+// --- EmailAddr: exact total-length boundary and CR/LF arm ---
+
+#[test]
+fn email_allows_total_length_exactly_254() {
+    // 3-octet local + '@' + 250-char domain (labels 63.63.63.57 + 3 dots = 252).
+    let email = format!("abc@{}.{}.{}.{}.com", "b".repeat(63), "c".repeat(63), "d".repeat(63), "e".repeat(54));
+    assert_eq!(email.len(), 254);
+    assert!(EmailAddr::parse(&email).is_ok());
+}
+
+#[test]
+fn email_rejects_lone_cr_with_specific_message() {
+    let err = EmailAddr::parse("a@b\rc").unwrap_err();
+    assert!(
+        matches!(&err, ValidError::InvalidEmail(m) if m.contains("CR or LF")),
+        "{err}"
+    );
+}
+
+// --- LocaleTag: CR/LF arm ---
+
+#[test]
+fn locale_rejects_lone_cr_with_specific_message() {
+    let err = LocaleTag::parse("en\r").unwrap_err();
+    assert!(
+        matches!(&err, ValidError::InvalidLocale(m) if m.contains("CR or LF")),
+        "{err}"
+    );
+}
+
+// --- PhoneE164: CR/LF arms (space arm covered above) ---
+
+#[test]
+fn phone_rejects_lone_cr_with_specific_message() {
+    let err = PhoneE164::parse("+1\r41").unwrap_err();
+    assert!(
+        matches!(&err, ValidError::InvalidPhone(m) if m.contains("must not contain whitespace")),
+        "{err}"
+    );
+}
+
+// --- HttpsUrl: CR without LF (the url crate strips CRLF pairs silently) ---
+
+#[test]
+fn url_rejects_lone_cr_with_specific_message() {
+    let err = HttpsUrl::parse("https://example.com/\rx").unwrap_err();
+    assert!(
+        matches!(&err, ValidError::InvalidUrl(m) if m.contains("CR or LF")),
+        "{err}"
+    );
 }
