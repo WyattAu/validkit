@@ -199,7 +199,13 @@ fn cron_rejects_field_starting_with_slash() {
 #[test]
 fn email_allows_total_length_exactly_254() {
     // 3-octet local + '@' + 250-char domain (labels 63.63.63.57 + 3 dots = 252).
-    let email = format!("abc@{}.{}.{}.{}.com", "b".repeat(63), "c".repeat(63), "d".repeat(63), "e".repeat(54));
+    let email = format!(
+        "abc@{}.{}.{}.{}.com",
+        "b".repeat(63),
+        "c".repeat(63),
+        "d".repeat(63),
+        "e".repeat(54)
+    );
     assert_eq!(email.len(), 254);
     assert!(EmailAddr::parse(&email).is_ok());
 }

@@ -1,6 +1,6 @@
 [package]
 name = "validkit"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 rust-version = "1.85"
 description = "Typed newtypes for validated domain primitives — email, URL, cron, tenant, locale, and more"
@@ -10,6 +10,10 @@ keywords = ["validation", "email", "url", "cron", "newtype"]
 categories = ["rust-patterns"]
 exclude = ["/target"]
 
+[workspace]
+members = ["crates/validkit-derive"]
+resolver = "2"
+
 [dependencies]
 thiserror = { version = "2", default-features = false }
 serde = { version = "1", features = ["derive"], optional = true }
@@ -18,6 +22,7 @@ chrono = { version = "0.4", features = ["serde"], optional = true }
 url = { version = "2", features = ["serde"], optional = true }
 regex = { version = "1", optional = true }
 idna = { version = "1", optional = true }
+validkit-derive = { version = "0.1.0", path = "crates/validkit-derive", optional = true }
 
 [dev-dependencies]
 proptest = "1"
@@ -33,6 +38,7 @@ chrono = ["dep:chrono"]
 url = ["dep:url"]
 regex = ["dep:regex"]
 openapi = []
+derive = ["dep:validkit-derive"]
 full = ["serde", "chrono", "url", "regex"]
 
 [[bench]]

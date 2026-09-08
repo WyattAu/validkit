@@ -148,6 +148,14 @@ impl<'de> serde::Deserialize<'de> for HttpsUrl {
     }
 }
 
+impl crate::email::Validate for HttpsUrl {
+    fn validate(&self) -> Result<(), ValidError> {
+        // Re-validate the inner URL (defensive; also normalizes the
+        // no-`url`-feature representation through the same path as parse).
+        validate_https_url(self.as_str()).map(|_| ())
+    }
+}
+
 impl Deref for HttpsUrl {
     type Target = str;
     fn deref(&self) -> &Self::Target {

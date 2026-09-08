@@ -38,11 +38,53 @@
 //! and optional `serde` support (transparent serialization; deserialization
 //! runs full validation, so invalid values cannot enter through JSON).
 //!
+//! # Derive macro
+//!
+//! Behind the optional, non-default `derive` feature, `#[derive(Validated)]`
+//! generates a `validate(&self) -> Result<(), ValidError>` method that checks
+//! fields annotated with `#[validate(...)]`:
+//!
+//! ```rust
+//! #[cfg(feature = "derive")]
+//! fn derive_example() {
+//!     use validkit::{Validated, Validate};
+//!
+//!     #[derive(Validated)]
+//!     struct Contact {
+//!         #[validate(email)]
+//!         email: String,
+//!         #[validate(url)]
+//!         homepage: Option<String>,
+//!         #[validate(length(min = 1, max = 100))]
+//!         name: String,
+//!         #[validate(range(min = 0.0, max = 1.0))]
+//!         trust: f64,
+//!         #[validate(postcode_uk)]
+//!         postcode: String,
+//!     }
+//!
+//!     let contact = Contact {
+//!         email: "alice@example.com".to_string(),
+//!         homepage: None,
+//!         name: "Alice".to_string(),
+//!         trust: 0.9,
+//!         postcode: "SW1A 1AA".to_string(),
+//!     };
+//!     assert!(contact.validate().is_ok());
+//! }
+//! # fn main() { derive_example() }
+//! ```
+//!
+//! Newtype-typed fields (`EmailAddr`, `HttpsUrl`) are supported as leaves —
+//! the derive re-uses the newtype's validation rather than re-implementing
+//! it.
+//!
 
 extern crate alloc;
 
 pub mod bucket;
 pub mod cron;
+pub mod derive_support;
 pub mod email;
 pub mod error;
 pub mod flag_name;
@@ -57,9 +99,11 @@ pub use bucket::is_valid_bucket_name;
 pub use bucket::BucketName;
 pub use cron::is_valid_cron;
 pub use cron::CronExpr;
+pub use derive_support::check_postcode_uk;
 pub use email::is_valid_email;
 pub use email::EmailAddr;
 pub use email::Validate;
+pub use error::invalid_field;
 pub use error::ValidError;
 pub use flag_name::is_valid_flag_name;
 pub use flag_name::FlagName;
@@ -71,6 +115,10 @@ pub use phone::PhoneE164;
 pub use tenant::is_valid_tenant_id;
 pub use tenant::TenantIdSlug;
 pub use url::HttpsUrl;
+
+// The `Validated` derive (behind the non-default `derive` feature).
+#[cfg(feature = "derive")]
+pub use validkit_derive::Validated;
 
 // Tests exercise failure paths and invariants directly; unwrap/expect,
 // slicing, and panicking asserts are acceptable here — violations

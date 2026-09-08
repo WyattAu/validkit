@@ -1,0 +1,26 @@
+[package]
+name = "validkit-derive"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+authors = ["WyattAu"]
+description = "Proc-macro derive for validkit: #[derive(Validated)] struct field validation"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/WyattAu/validkit"
+keywords = ["validation", "derive", "macro"]
+categories = ["rust-patterns", "development-tools"]
+exclude = ["/target"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+syn = { version = "2", features = ["full"] }
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "warn"
+indexing_slicing = "deny"
+panic = "deny"

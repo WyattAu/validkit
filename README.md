@@ -31,10 +31,40 @@ Typed newtypes for validated domain primitives — replaces hand-rolled `is_vali
 - `regex` — regex-backed validation (more precise)
 - `chrono` — chrono integration (placeholder for timestamp types)
 - `idna` — IDNA domain validation for emails
-- `full` — enables all above
+- `derive` — `#[derive(Validated)]` struct-field validation (proc macro;
+  not part of `full`/default, keeps the `no_std` core intact)
+- `full` — enables the optional integration features above (not `derive`)
 - `no_std` — `no_std` compatible (`extern crate alloc`)
 
 No `unsafe` code (`#![forbid(unsafe_code)]`), `#![deny(missing_docs)]`.
+
+## Derive macro
+
+With the `derive` feature, `#[derive(Validated)]` generates a
+`validate(&self) -> Result<(), ValidError>` method from field annotations:
+
+```rust,ignore
+use validkit::{Validated, Validate};
+
+#[derive(Validated)]
+struct Contact {
+    #[validate(email)]
+    email: String,                       // or EmailAddr / Option<String>
+    #[validate(url)]
+    homepage: Option<String>,            // or HttpsUrl
+    #[validate(length(min = 1, max = 254))]
+    name: String,
+    #[validate(range(min = 0.0, max = 1.0))]
+    trust: f64,                          // numeric primitives
+    #[validate(postcode_uk)]
+    postcode: String,
+}
+
+assert!(contact.validate().is_ok());
+```
+
+Checks run in field declaration order and stop at the first failure.
+See the `validkit-derive` crate docs for the full attribute grammar.
 
 ## Usage
 
