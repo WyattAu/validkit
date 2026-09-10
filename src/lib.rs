@@ -1,4 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, allow(unused_attributes))]
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 
@@ -118,6 +120,7 @@ pub use url::HttpsUrl;
 
 // The `Validated` derive (behind the non-default `derive` feature).
 #[cfg(feature = "derive")]
+#[cfg_attr(docsrs, doc(cfg(feature = "derive")))]
 pub use validkit_derive::Validated;
 
 // Tests exercise failure paths and invariants directly; unwrap/expect,

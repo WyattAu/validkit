@@ -2,6 +2,7 @@
 
 Typed newtypes for validated domain primitives — replaces hand-rolled `is_valid_*` checks with parse-once, use-everywhere strong types.
 
+[![docs.rs](https://docs.rs/validkit/badge.svg)](https://docs.rs/validkit)
 [![Crates.io](https://img.shields.io/crates/v/validkit.svg)](https://crates.io/crates/validkit)
 [![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](./LICENSE-MIT)
 
@@ -34,6 +35,7 @@ Typed newtypes for validated domain primitives — replaces hand-rolled `is_vali
 - `derive` — `#[derive(Validated)]` struct-field validation (proc macro;
   not part of `full`/default, keeps the `no_std` core intact)
 - `full` — enables the optional integration features above (not `derive`)
+- `openapi` — opt-in marker feature for OpenAPI schema integrations
 - `no_std` — `no_std` compatible (`extern crate alloc`)
 
 No `unsafe` code (`#![forbid(unsafe_code)]`), `#![deny(missing_docs)]`.
