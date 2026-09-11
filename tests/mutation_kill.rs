@@ -73,9 +73,17 @@ fn tenant_accessors_roundtrip() {
 
 #[test]
 fn url_accessor_roundtrip() {
-    // url crate normalises an empty path to "/", so assert the canonical form.
     let u = HttpsUrl::parse("https://example.com").unwrap();
-    assert_eq!(u.as_ref(), "https://example.com/");
+    #[cfg(feature = "url")]
+    {
+        // url crate normalises an empty path to "/", so assert the canonical form.
+        assert_eq!(u.as_ref(), "https://example.com/");
+    }
+    #[cfg(not(feature = "url"))]
+    {
+        // String-backed storage keeps the input verbatim (no normalization).
+        assert_eq!(u.as_ref(), "https://example.com");
+    }
 }
 
 // --- is_valid_* free functions (constant-false replacements) ---

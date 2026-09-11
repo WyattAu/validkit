@@ -74,6 +74,9 @@
 //!     };
 //!     assert!(contact.validate().is_ok());
 //! }
+//! # #[cfg(not(feature = "derive"))]
+//! # fn main() {}
+//! # #[cfg(feature = "derive")]
 //! # fn main() { derive_example() }
 //! ```
 //!

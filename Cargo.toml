@@ -18,7 +18,6 @@ resolver = "2"
 thiserror = { version = "2", default-features = false }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
-chrono = { version = "0.4", features = ["serde"], optional = true }
 url = { version = "2", features = ["serde"], optional = true }
 regex = { version = "1", optional = true }
 idna = { version = "1", optional = true }
@@ -32,9 +31,11 @@ regex = "1"
 
 [features]
 default = ["std"]
-std = ["thiserror/std", "serde?/std", "chrono?/clock", "url?/std"]
+std = ["thiserror/std", "serde?/std", "url?/std"]
 serde = ["dep:serde", "dep:serde_json"]
-chrono = ["dep:chrono"]
+# Deprecated no-op (kept for 1.x compatibility): chrono support never
+# shipped — no code path references it. Do not add new dependencies on it.
+chrono = []
 url = ["dep:url"]
 regex = ["dep:regex"]
 openapi = []
