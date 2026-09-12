@@ -80,64 +80,8 @@ fn validate_cron(input: &str) -> Result<CronExpr, ValidError> {
     // When regex feature is enabled, use the specified regex pattern.
     #[cfg(feature = "regex")]
     {
-        use std::sync::OnceLock;
-        // Regex per field: allow digits, *, comma, slash, hyphen combinations.
-        // Spec snippet ^(\*|[\d,/\-]+) is simplified; we extend to support common
-        // cron like "*/5" by allowing "*\/\d" combos: ^[\d\*,\/\-]+$
-        static FIELD_RE: OnceLock<regex::Regex> = OnceLock::new();
-        let re = match FIELD_RE.get() {
-            Some(r) => r,
-            None => {
-                let init = match regex::Regex::new(r"^[\d\*,\/\-]+$") {
-                    Ok(r) => r,
-                    Err(_) => {
-                        return Err(ValidError::InvalidCron("internal regex error".to_string()))
-                    }
-                };
-                let _ = FIELD_RE.set(init);
-                match FIELD_RE.get() {
-                    Some(r) => r,
-                    None => {
-                        return Err(ValidError::InvalidCron("internal regex error".to_string()))
-                    }
-                }
-            }
-        };
-        for field in &fields {
-            if !re.is_match(field) {
-                return Err(ValidError::InvalidCron(alloc::format!(
-                    "invalid cron field '{}'",
-                    field
-                )));
-            }
-            // Additional checks: require digit or '*' if punctuation present, and no leading/trailing punctuation
-            if (field.contains(',') || field.contains('/') || field.contains('-'))
-                && !field.chars().any(|c| c.is_ascii_digit() || c == '*')
-            {
-                return Err(ValidError::InvalidCron(alloc::format!(
-                    "invalid cron field '{}'",
-                    field
-                )));
-            }
-            if field.starts_with('/') || field.starts_with(',') || field.starts_with('-') {
-                return Err(ValidError::InvalidCron(alloc::format!(
-                    "invalid cron field '{}'",
-                    field
-                )));
-            }
-            if field.ends_with('/') || field.ends_with(',') || field.ends_with('-') {
-                return Err(ValidError::InvalidCron(alloc::format!(
-                    "invalid cron field '{}'",
-                    field
-                )));
-            }
-            if field.contains("//") || field.contains(",,") || field.contains("--") {
-                return Err(ValidError::InvalidCron(alloc::format!(
-                    "invalid cron field '{}'",
-                    field
-                )));
-            }
-        }
+        validate_cron_fields_regex(&fields)?;
+        Ok(CronExpr(trimmed.to_string()))
     }
 
     #[cfg(not(feature = "regex"))]
@@ -188,9 +132,86 @@ fn validate_cron(input: &str) -> Result<CronExpr, ValidError> {
                 )));
             }
         }
+        Ok(CronExpr(trimmed.to_string()))
+    }
+}
+
+#[cfg(feature = "regex")]
+fn validate_cron_fields_regex(fields: &[&str]) -> Result<(), ValidError> {
+    #[cfg(feature = "std")]
+    {
+        use std::sync::OnceLock;
+        // Regex per field: allow digits, *, comma, slash, hyphen combinations.
+        static FIELD_RE: OnceLock<regex::Regex> = OnceLock::new();
+        let re = match FIELD_RE.get() {
+            Some(r) => r,
+            None => {
+                let init = match regex::Regex::new(r"^[\d\*,\/\-]+$") {
+                    Ok(r) => r,
+                    Err(_) => {
+                        return Err(ValidError::InvalidCron("internal regex error".to_string()))
+                    }
+                };
+                let _ = FIELD_RE.set(init);
+                match FIELD_RE.get() {
+                    Some(r) => r,
+                    None => {
+                        return Err(ValidError::InvalidCron("internal regex error".to_string()))
+                    }
+                }
+            }
+        };
+        validate_cron_fields_with(re, fields)
     }
 
-    Ok(CronExpr(trimmed.to_string()))
+    #[cfg(not(feature = "std"))]
+    {
+        let re = match regex::Regex::new(r"^[\d\*,\/\-]+$") {
+            Ok(r) => r,
+            Err(_) => return Err(ValidError::InvalidCron("internal regex error".to_string())),
+        };
+        validate_cron_fields_with(&re, fields)
+    }
+}
+
+#[cfg(feature = "regex")]
+fn validate_cron_fields_with(re: &regex::Regex, fields: &[&str]) -> Result<(), ValidError> {
+    for field in fields {
+        if !re.is_match(field) {
+            return Err(ValidError::InvalidCron(alloc::format!(
+                "invalid cron field '{}'",
+                field
+            )));
+        }
+        // Additional checks: require digit or '*' if punctuation present, and no leading/trailing punctuation
+        if (field.contains(',') || field.contains('/') || field.contains('-'))
+            && !field.chars().any(|c| c.is_ascii_digit() || c == '*')
+        {
+            return Err(ValidError::InvalidCron(alloc::format!(
+                "invalid cron field '{}'",
+                field
+            )));
+        }
+        if field.starts_with('/') || field.starts_with(',') || field.starts_with('-') {
+            return Err(ValidError::InvalidCron(alloc::format!(
+                "invalid cron field '{}'",
+                field
+            )));
+        }
+        if field.ends_with('/') || field.ends_with(',') || field.ends_with('-') {
+            return Err(ValidError::InvalidCron(alloc::format!(
+                "invalid cron field '{}'",
+                field
+            )));
+        }
+        if field.contains("//") || field.contains(",,") || field.contains("--") {
+            return Err(ValidError::InvalidCron(alloc::format!(
+                "invalid cron field '{}'",
+                field
+            )));
+        }
+    }
+    Ok(())
 }
 
 /// Returns `true` if `s` is a valid 5-field cron expression.

@@ -61,26 +61,7 @@ fn validate_flag(input: &str) -> Result<FlagName, ValidError> {
 
     #[cfg(feature = "regex")]
     {
-        use std::sync::OnceLock;
-        static RE: OnceLock<regex::Regex> = OnceLock::new();
-        let re = match RE.get() {
-            Some(r) => r,
-            None => {
-                let init = match regex::Regex::new(r"^[a-z][a-z0-9_]*$") {
-                    Ok(r) => r,
-                    Err(_) => return Err(ValidError::InvalidFlagName),
-                };
-                let _ = RE.set(init);
-                match RE.get() {
-                    Some(r) => r,
-                    None => return Err(ValidError::InvalidFlagName),
-                }
-            }
-        };
-        if !re.is_match(input) {
-            return Err(ValidError::InvalidFlagName);
-        }
-        Ok(FlagName(input.to_string()))
+        validate_flag_regex(input)
     }
 
     #[cfg(not(feature = "regex"))]
@@ -98,8 +79,49 @@ fn validate_flag(input: &str) -> Result<FlagName, ValidError> {
                 return Err(ValidError::InvalidFlagName);
             }
         }
-        return Ok(FlagName(input.to_string()));
+        Ok(FlagName(input.to_string()))
     }
+}
+
+#[cfg(feature = "regex")]
+fn validate_flag_regex(input: &str) -> Result<FlagName, ValidError> {
+    #[cfg(feature = "std")]
+    {
+        use std::sync::OnceLock;
+        static RE: OnceLock<regex::Regex> = OnceLock::new();
+        let re = match RE.get() {
+            Some(r) => r,
+            None => {
+                let init = match regex::Regex::new(r"^[a-z][a-z0-9_]*$") {
+                    Ok(r) => r,
+                    Err(_) => return Err(ValidError::InvalidFlagName),
+                };
+                let _ = RE.set(init);
+                match RE.get() {
+                    Some(r) => r,
+                    None => return Err(ValidError::InvalidFlagName),
+                }
+            }
+        };
+        validate_flag_with(re, input)
+    }
+
+    #[cfg(not(feature = "std"))]
+    {
+        let re = match regex::Regex::new(r"^[a-z][a-z0-9_]*$") {
+            Ok(r) => r,
+            Err(_) => return Err(ValidError::InvalidFlagName),
+        };
+        validate_flag_with(&re, input)
+    }
+}
+
+#[cfg(feature = "regex")]
+fn validate_flag_with(re: &regex::Regex, input: &str) -> Result<FlagName, ValidError> {
+    if !re.is_match(input) {
+        return Err(ValidError::InvalidFlagName);
+    }
+    Ok(FlagName(input.to_string()))
 }
 
 /// Returns `true` if `s` is a valid flag name.

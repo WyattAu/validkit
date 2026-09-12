@@ -3,6 +3,36 @@
 All notable changes to this project are documented here. Format: [Keep a
 Changelog](https://keepachangelog.com/) — versions follow [semver](https://semver.org).
 
+## [Unreleased]
+
+## [1.3.0] - 2026-09-12
+
+### Added
+
+- `openapi` feature is now real: every newtype (`EmailAddr`, `HttpsUrl`,
+  `PhoneE164`, `CronExpr`, `TenantIdSlug`, `LocaleTag`, `FlagName`,
+  `BucketName`, `ObjectKey`) implements `schemars::JsonSchema` under
+  `#[cfg(feature = "openapi")]`. Generated schemas carry the validation
+  constraints the runtime enforces — `format: email`, `format: uri`,
+  `pattern`, `minLength`, `maxLength` — so OpenAPI documents generated
+  from handlers using validkit types are no longer bare strings.
+  Constraints not portable to a JSON-Schema `pattern` are documented in
+  each schema's `description`.
+- `schemars` (v1, `default-features = false`) as an optional dependency
+  behind the `openapi` feature; `openapi` is now part of `full`.
+- `tests/openapi_schema.rs`: snapshot assertions per type plus a
+  pattern-agreement test proving the published patterns accept exactly
+  what the validators accept on pattern-expressible rules.
+- Doctest in `src/openapi.rs` demonstrating schema generation.
+
+### Fixed
+
+- `regex` feature without `std` no longer fails to compile: the
+  regex-backed paths in `CronExpr`, `LocaleTag`, and `FlagName` used
+  `std::sync::OnceLock` unconditionally. They now cache via `OnceLock`
+  under `std` and compile per call in `no_std` (matching the existing
+  `PhoneE164` behavior).
+
 ## [1.1.0] - 2026-09-09
 
 ### Added

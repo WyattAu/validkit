@@ -35,10 +35,36 @@ Typed newtypes for validated domain primitives — replaces hand-rolled `is_vali
 - `derive` — `#[derive(Validated)]` struct-field validation (proc macro;
   not part of `full`/default, keeps the `no_std` core intact)
 - `full` — enables the optional integration features above (not `derive`)
-- `openapi` — opt-in marker feature for OpenAPI schema integrations
+- `openapi` — `JsonSchema` impls for every newtype via `schemars`; schemas
+  carry the real validation constraints
 - `no_std` — `no_std` compatible (`extern crate alloc`)
 
 No `unsafe` code (`#![forbid(unsafe_code)]`), `#![deny(missing_docs)]`.
+
+## OpenAPI / JSON Schema
+
+With the `openapi` feature, every newtype implements
+[`schemars::JsonSchema`](https://docs.rs/schemars) so schemas generated for
+your handlers (e.g. via `utoipa`/`aide`-style OpenAPI tooling) describe the
+constraints that actually run:
+
+```rust,ignore
+use schemars::JsonSchema;
+
+#[derive(JsonSchema)]  // your DTO
+struct Signup {
+    email: validkit::EmailAddr,  // schema: format: email, maxLength: 254
+    home:  validkit::HttpsUrl,   // schema: format: uri, ^https://
+    phone: validkit::PhoneE164,  // schema: ^\+[1-9]\d{1,14}$
+}
+```
+
+Each schema mirrors its validator: `EmailAddr` emits `format: "email"` plus
+`maxLength: 254`, `PhoneE164` emits the E.164 `pattern`, `TenantIdSlug`
+encodes the 3–63 slug rules, and so on. Constraints not portable to an
+ECMA-262 `pattern` (e.g. `TenantIdSlug`'s `..` / `.lock` bans,
+`BucketName`'s IP-address check) are stated in the schema `description`;
+the runtime validator remains the source of truth.
 
 ## Derive macro
 

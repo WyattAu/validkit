@@ -95,6 +95,9 @@ pub mod error;
 pub mod flag_name;
 pub mod locale;
 pub mod object_key;
+#[cfg(feature = "openapi")]
+#[cfg_attr(docsrs, doc(cfg(feature = "openapi")))]
+pub mod openapi;
 pub mod phone;
 pub mod tenant;
 pub mod url;

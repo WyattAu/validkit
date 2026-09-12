@@ -69,37 +69,7 @@ fn validate_locale(input: &str) -> Result<LocaleTag, ValidError> {
 
     #[cfg(feature = "regex")]
     {
-        use std::sync::OnceLock;
-        static RE: OnceLock<regex::Regex> = OnceLock::new();
-        let re = match RE.get() {
-            Some(r) => r,
-            None => {
-                let init = match regex::Regex::new(r"^[a-z]{2,3}(-[A-Za-z0-9]+)*$") {
-                    Ok(r) => r,
-                    Err(_) => {
-                        return Err(ValidError::InvalidLocale(
-                            "internal regex error".to_string(),
-                        ))
-                    }
-                };
-                let _ = RE.set(init);
-                match RE.get() {
-                    Some(r) => r,
-                    None => {
-                        return Err(ValidError::InvalidLocale(
-                            "internal regex error".to_string(),
-                        ))
-                    }
-                }
-            }
-        };
-        if !re.is_match(input) {
-            return Err(ValidError::InvalidLocale(alloc::format!(
-                "locale '{}' does not match BCP47 pattern",
-                input
-            )));
-        }
-        Ok(LocaleTag(input.to_string()))
+        validate_locale_regex(input)
     }
 
     #[cfg(not(feature = "regex"))]
@@ -140,8 +110,64 @@ fn validate_locale(input: &str) -> Result<LocaleTag, ValidError> {
                 )));
             }
         }
-        return Ok(LocaleTag(input.to_string()));
+        Ok(LocaleTag(input.to_string()))
     }
+}
+
+#[cfg(feature = "regex")]
+fn validate_locale_regex(input: &str) -> Result<LocaleTag, ValidError> {
+    #[cfg(feature = "std")]
+    {
+        use std::sync::OnceLock;
+        static RE: OnceLock<regex::Regex> = OnceLock::new();
+        let re = match RE.get() {
+            Some(r) => r,
+            None => {
+                let init = match regex::Regex::new(r"^[a-z]{2,3}(-[A-Za-z0-9]+)*$") {
+                    Ok(r) => r,
+                    Err(_) => {
+                        return Err(ValidError::InvalidLocale(
+                            "internal regex error".to_string(),
+                        ))
+                    }
+                };
+                let _ = RE.set(init);
+                match RE.get() {
+                    Some(r) => r,
+                    None => {
+                        return Err(ValidError::InvalidLocale(
+                            "internal regex error".to_string(),
+                        ))
+                    }
+                }
+            }
+        };
+        validate_locale_with(re, input)
+    }
+
+    #[cfg(not(feature = "std"))]
+    {
+        let re = match regex::Regex::new(r"^[a-z]{2,3}(-[A-Za-z0-9]+)*$") {
+            Ok(r) => r,
+            Err(_) => {
+                return Err(ValidError::InvalidLocale(
+                    "internal regex error".to_string(),
+                ))
+            }
+        };
+        validate_locale_with(&re, input)
+    }
+}
+
+#[cfg(feature = "regex")]
+fn validate_locale_with(re: &regex::Regex, input: &str) -> Result<LocaleTag, ValidError> {
+    if !re.is_match(input) {
+        return Err(ValidError::InvalidLocale(alloc::format!(
+            "locale '{}' does not match BCP47 pattern",
+            input
+        )));
+    }
+    Ok(LocaleTag(input.to_string()))
 }
 
 /// Returns `true` if `s` is a valid locale tag.
