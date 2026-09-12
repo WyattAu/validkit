@@ -1,6 +1,6 @@
 [package]
 name = "validkit"
-version = "1.3.0"
+version = "1.3.1"
 edition = "2021"
 rust-version = "1.85"
 description = "Typed newtypes for validated domain primitives — email, URL, cron, tenant, locale, and more"

@@ -14,7 +14,7 @@ use crate::error::ValidError;
 /// Validation: `^[a-z][a-z0-9_]*$`
 /// Snake-case, starting with a lowercase letter, containing only lowercase
 /// alphanumeric and underscore (e.g. `flag_ai_analyzers` lowercased form).
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(transparent))]
 pub struct FlagName(String);
@@ -215,5 +215,23 @@ mod tests {
     #[test]
     fn invalid_hyphen() {
         assert!(FlagName::parse("flag-name").is_err());
+    }
+
+    #[test]
+    fn ordering_is_lexicographic_on_inner() {
+        let a = FlagName::parse("flag_a").unwrap();
+        let b = FlagName::parse("flag_b").unwrap();
+        assert!(a < b);
+        assert!(b > a);
+        assert!(a == FlagName::parse("flag_a").unwrap());
+        // Sort stability of the total order: matches the inner &'str order.
+        let mut names = [
+            FlagName::parse("zeta").unwrap(),
+            FlagName::parse("alpha").unwrap(),
+            FlagName::parse("mid").unwrap(),
+        ];
+        names.sort_unstable();
+        let sorted: [&str; 3] = [names[0].as_str(), names[1].as_str(), names[2].as_str()];
+        assert_eq!(sorted, ["alpha", "mid", "zeta"]);
     }
 }

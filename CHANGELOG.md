@@ -5,6 +5,14 @@ Changelog](https://keepachangelog.com/) — versions follow [semver](https://sem
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-09-13
+
+### Added
+
+- `Ord`/`PartialOrd` on `FlagName` (lexicographic on the inner string).
+  Semver-additive; lets flag names serve as `BTreeMap` keys and sort
+  deterministically.
+
 ## [1.3.0] - 2026-09-12
 
 ### Added
