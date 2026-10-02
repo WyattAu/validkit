@@ -24,3 +24,6 @@ unwrap_used = "deny"
 expect_used = "warn"
 indexing_slicing = "deny"
 panic = "deny"
+
+[package.metadata.layers]
+tier = "L0"
