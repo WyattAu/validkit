@@ -1,4 +1,5 @@
 # validkit
+[![Estate integration](https://github.com/WyattAu/estate-integration/actions/workflows/ci.yml/badge.svg)](https://github.com/WyattAu/estate-integration/actions/workflows/ci.yml)
 
 Typed newtypes for validated domain primitives: replaces hand-rolled `is_valid_*` checks with parse-once, use-everywhere strong types.
 
