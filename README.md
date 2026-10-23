@@ -1,6 +1,6 @@
 # validkit
 
-Typed newtypes for validated domain primitives — replaces hand-rolled `is_valid_*` checks with parse-once, use-everywhere strong types.
+Typed newtypes for validated domain primitives: replaces hand-rolled `is_valid_*` checks with parse-once, use-everywhere strong types.
 
 [![docs.rs](https://docs.rs/validkit/badge.svg)](https://docs.rs/validkit)
 [![Crates.io](https://img.shields.io/crates/v/validkit.svg)](https://crates.io/crates/validkit)
@@ -26,18 +26,18 @@ Typed newtypes for validated domain primitives — replaces hand-rolled `is_vali
 
 ## Features
 
-- `std` (default) — enables `std` support
-- `serde` — `Serialize`/`Deserialize` transparent
-- `url` — use `url` crate for `HttpsUrl`
-- `regex` — regex-backed validation (more precise)
-- `chrono` — chrono integration (placeholder for timestamp types)
-- `idna` — IDNA domain validation for emails
-- `derive` — `#[derive(Validated)]` struct-field validation (proc macro;
+- `std` (default): enables `std` support
+- `serde`: `Serialize`/`Deserialize` transparent
+- `url`: use `url` crate for `HttpsUrl`
+- `regex`: regex-backed validation (more precise)
+- `chrono`: chrono integration (placeholder for timestamp types)
+- `idna`: IDNA domain validation for emails
+- `derive`: `#[derive(Validated)]` struct-field validation (proc macro;
   not part of `full`/default, keeps the `no_std` core intact)
-- `full` — enables the optional integration features above (not `derive`)
-- `openapi` — `JsonSchema` impls for every newtype via `schemars`; schemas
+- `full`: enables the optional integration features above (not `derive`)
+- `openapi`: `JsonSchema` impls for every newtype via `schemars`; schemas
   carry the real validation constraints
-- `no_std` — `no_std` compatible (`extern crate alloc`)
+- `no_std`: `no_std` compatible (`extern crate alloc`)
 
 No `unsafe` code (`#![forbid(unsafe_code)]`), `#![deny(missing_docs)]`.
 

@@ -1,7 +1,7 @@
 # Changelog
 
 All notable changes to this project are documented here. Format: [Keep a
-Changelog](https://keepachangelog.com/) — versions follow [semver](https://semver.org).
+Changelog](https://keepachangelog.com/): versions follow [semver](https://semver.org).
 
 ## [Unreleased]
 
@@ -21,8 +21,8 @@ Changelog](https://keepachangelog.com/) — versions follow [semver](https://sem
   `PhoneE164`, `CronExpr`, `TenantIdSlug`, `LocaleTag`, `FlagName`,
   `BucketName`, `ObjectKey`) implements `schemars::JsonSchema` under
   `#[cfg(feature = "openapi")]`. Generated schemas carry the validation
-  constraints the runtime enforces — `format: email`, `format: uri`,
-  `pattern`, `minLength`, `maxLength` — so OpenAPI documents generated
+  constraints the runtime enforces: `format: email`, `format: uri`,
+  `pattern`, `minLength`, `maxLength`: so OpenAPI documents generated
   from handlers using validkit types are no longer bare strings.
   Constraints not portable to a JSON-Schema `pattern` are documented in
   each schema's `description`.
@@ -48,17 +48,17 @@ Changelog](https://keepachangelog.com/) — versions follow [semver](https://sem
 - `validkit-derive` 0.1.0: a new workspace proc-macro crate providing
   `#[derive(Validated)]`, which generates `validate(&self) ->
   Result<(), ValidError>` from field annotations:
-  - `#[validate(email)]` — `String` / `Option<String>` via
+  - `#[validate(email)]`: `String` / `Option<String>` via
     `is_valid_email`, or `EmailAddr` / `Option<EmailAddr>` leaves via the
     `Validate` trait;
-  - `#[validate(url)]` — `String` / `Option<String>` via `HttpsUrl::parse`,
+  - `#[validate(url)]`: `String` / `Option<String>` via `HttpsUrl::parse`,
     or `HttpsUrl` / `Option<HttpsUrl>` leaves;
-  - `#[validate(postcode_uk)]` — `String` / `Option<String>` structural UK
+  - `#[validate(postcode_uk)]`: `String` / `Option<String>` structural UK
     postcode check (GIR 0AA included), implemented in-crate so generated
     code stays `no_std`-safe;
-  - `#[validate(length(min = .., max = ..))]` — inclusive byte-length
+  - `#[validate(length(min = .., max = ..))]`: inclusive byte-length
     bounds on `String` / `Option<String>`;
-  - `#[validate(range(min = .., max = ..))]` — inclusive bounds on numeric
+  - `#[validate(range(min = .., max = ..))]`: inclusive bounds on numeric
     primitives and `Option` thereof.
 - `derive` feature on `validkit` (non-default, excluded from `full`) that
   re-exports the macro; the `no_std` core and default build are untouched.
@@ -94,7 +94,7 @@ semver guarantees: breaking changes require a major version bump.
 
 ### Added
 
-- Typed newtypes for validated domain primitives (email, URL, and more) —
+- Typed newtypes for validated domain primitives (email, URL, and more);
   invalid values cannot be constructed.
 - Feature-gated precision: `serde`, `url`, `regex`, `chrono`, `idna`,
   `full`.

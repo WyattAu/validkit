@@ -1,4 +1,4 @@
-# Requirements — validkit
+# Requirements: validkit
 
 Numbered, testable requirements. Every requirement maps to at least one named
 test; every security-relevant test cites at least one requirement. Doc
@@ -37,11 +37,11 @@ comments on the implementing public item carry `REQ-VK-NNN` tags.
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| REQ-VK-100 | No parser panics on arbitrary/malformed input — every invalid input yields `Err(ValidError)`, never a panic (fuzz + property-backed) | MUST |
+| REQ-VK-100 | No parser panics on arbitrary/malformed input: every invalid input yields `Err(ValidError)`, never a panic (fuzz + property-backed) | MUST |
 | REQ-VK-101 | CR and LF bytes are rejected by every string-validated type with a specific, attributable error message (header/CRLF injection guard) | MUST |
 | REQ-VK-102 | `ObjectKey` rejects `..` path traversal segments and null bytes | MUST |
 | REQ-VK-103 | `HttpsUrl` rejects embedded credentials so secrets cannot be smuggled into stored URLs | MUST |
-| REQ-VK-104 | Serde deserialization runs full validation — invalid values cannot enter through JSON regardless of construction path | MUST |
+| REQ-VK-104 | Serde deserialization runs full validation: invalid values cannot enter through JSON regardless of construction path | MUST |
 | REQ-VK-105 | `BucketName` rejects dotted-quad IP-address-like names (AWS rule) while allowing dotted numbers that are not IP-like | MUST |
 | REQ-VK-106 | Email IDNA normalisation is budget-bounded: punycode expansion that would exceed the 254-octet limit is rejected, not truncated | MUST |
 | REQ-VK-107 | `TenantIdSlug` rejects `..` and CRLF so tenant strings cannot traverse paths or forge headers | MUST |

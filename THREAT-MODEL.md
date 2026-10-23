@@ -1,4 +1,4 @@
-# Threat Model — validkit
+# Threat Model: validkit
 
 Status: **v1.0** · Method: STRIDE over the public API surface: the nine
 validated newtypes (`EmailAddr`, `HttpsUrl`, `PhoneE164`, `CronExpr`,
@@ -33,23 +33,23 @@ consumers that trust a parsed value is safe to embed (headers, URLs, paths).
 | T8 | Bucket names that are IPs or uppercase | Spoofing | `BucketName` | S3 subset rules enforced | `tests/integration.rs::bucket_valid`/`bucket_invalid`; proptest `bucket_rejects_uppercase` |
 | T9 | Injection via parsed values downstream | Elevation | all newtypes | Charset allow-lists strip `<>()[]\,;:"` in email local parts; cron fields restricted to `[\d*,/-]`; locale/flag/bucket allow-lists | `tests/integration.rs::email_invalid_cases` (problematic-character cases), `flag_invalid` |
 
-## OPEN RISKS (missing mitigations — not fabricated)
+## OPEN RISKS (missing mitigations: not fabricated)
 
-- **OPEN-1 — two validation engines, no differential test.** The `regex`
+- **OPEN-1: two validation engines, no differential test.** The `regex`
   feature and the hand-rolled fallback implement the same rules twice
   (e.g. `src/cron.rs`, `src/locale.rs`, `src/flag_name.rs`). A drift between
   them silently changes what is accepted depending on feature flags; CI runs
   one engine at a time. A differential property test (same inputs, both
   engines, same verdict) is missing.
-- **OPEN-2 — the no-`url`-crate `HttpsUrl` fallback is weaker.** Without the
+- **OPEN-2: the no-`url`-crate `HttpsUrl` fallback is weaker.** Without the
   `url` feature, validation is a minimal prefix/host check (documented in
   `src/url.rs`); userinfo-with-`@` handling is cruder than the `url`-crate
   path. Same OPEN-1 class: feature-flag-dependent acceptance.
-- **OPEN-3 — IDNA/punycode handling in email domains is not exercised.**
+- **OPEN-3: IDNA/punycode handling in email domains is not exercised.**
   README/docs claim "RFC 5321 + IDNA", but the domain checks are lowercase +
   charset tests; no test covers non-ASCII or punycode domains, so the actual
   guarantee is weaker than the claim.
-- **OPEN-4 — percent-encoding/unicode confusion is out of scope by design.**
+- **OPEN-4: percent-encoding/unicode confusion is out of scope by design.**
   Validated values are returned verbatim (`as_str`); callers embedding them
   into URLs or headers must still encode. Nothing in the API marks this.
 
@@ -57,12 +57,12 @@ consumers that trust a parsed value is safe to embed (headers, URLs, paths).
 
 - Deliverability of emails, reachability of URLs (syntax only).
 - Phone number plans beyond E.164 shape (no region validation).
-- Semantic cron validity (e.g. Feb 30) — field structure only.
+- Semantic cron validity (e.g. Feb 30): field structure only.
 
 ## Residual Risks
 
 - Validation is allow-list based but deliberately *not* RFC-complete for
-  email (quoted strings, IP-literal domains rejected); stricter than RFC —
+  email (quoted strings, IP-literal domains rejected); stricter than RFC:
   false rejections, not false acceptances.
 - Locale tags accept arbitrary subdomain-count chains up to the 35-char cap;
   BCP 47 canonicalization is not performed.
