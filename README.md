@@ -126,3 +126,14 @@ MIT OR Apache-2.0
 ## Security
 
 Threat model: [THREAT-MODEL.md](THREAT-MODEL.md).
+
+## Where the truth lives
+
+| Concern | File |
+|---|---|
+| Validation semantics, type catalog, usage (normative) | `README.md` |
+| Requirements REQ-VK-001..204 + traceability | `REQUIREMENTS.md` |
+| Threat model | `THREAT-MODEL.md` |
+| Coverage notes | `COVERAGE-NOTES.md` |
+| Security policy | `SECURITY.md` |
+| Release history | `CHANGELOG.md` |

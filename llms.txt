@@ -1,0 +1,16 @@
+# validkit
+
+> Typed newtypes for validated domain primitives: parse-once, use-everywhere
+> strong types for emails, URLs, cron expressions, tenant slugs, locale tags,
+> flag names, S3 bucket names, object keys, and E.164 phones. Each type
+> guarantees its invariants at construction time, replacing hand-rolled
+> `is_valid_*` checks.
+
+## Docs
+
+- [README.md](README.md): validation semantics, type catalog, usage.
+- [REQUIREMENTS.md](REQUIREMENTS.md): numbered requirements REQ-VK-001..204 with test traceability.
+- [THREAT-MODEL.md](THREAT-MODEL.md): threat model and security mitigations.
+- [COVERAGE-NOTES.md](COVERAGE-NOTES.md): coverage notes and exclusions.
+- [SECURITY.md](SECURITY.md): security policy.
+- [CHANGELOG.md](CHANGELOG.md): release history.
